@@ -57,7 +57,7 @@ def main():
     # Defines a new "context" (ctx) command called "ping."
     @slash.slash(name="ping", guild_ids=guild_ids)
     async def _ping(ctx):
-        await ctx.send(f"Pong!! ({bot.latency*1000}ms)")
+        await ctx.send(f"Pong!!!!! ({bot.latency*1000}ms)")
 
     # Run client and spawn http server
     bot.run(DISCORD_TOKEN)
