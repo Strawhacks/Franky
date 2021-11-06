@@ -42,7 +42,7 @@ jobs:
         # deploy to Azure Web App.
         python -m pip install --upgrade pip
         python -m pip install pipenv
-        python -m pipenv install
+        python -m pipenv install --system
     - name: Building web app
       uses: azure/appservice-build@v2
     - name: 'Deploy to Azure WebApp'
