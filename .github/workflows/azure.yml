@@ -35,6 +35,6 @@ jobs:
             registry-username: ${{ secrets.REGISTRY_USERNAME }}
             registry-password: ${{ secrets.REGISTRY_PASSWORD }}
             name: aci-strawhacks-franky
-            environment-variables: DISCORD_GUILDS=902656849684344912
+            environment-variables: DISCORD_GUILDS=902656849684344912,679052412291383345
             secure-environment-variables: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
             location: 'east us'
