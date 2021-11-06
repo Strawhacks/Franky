@@ -60,6 +60,10 @@ def main():
     @slash.slash(name="ping", guild_ids=guild_ids)
     async def _ping(ctx):
         await ctx.send(f"Pong!!!!! ({bot.latency*1000}ms)")
+        
+    @slash.slash(name="infra", guild_ids=guild_ids)
+    async def _infra(ctx):
+        await ctx.send(f"Stub for the infra command. ({bot.latency*1000}ms)")
 
     # Run client and spawn http server
     bot.run(DISCORD_TOKEN)
