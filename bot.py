@@ -19,6 +19,7 @@ import discord
 from discord.ext import commands
 from discord_slash import SlashCommand
 
+
 def begin_logging():
     handler = logging.StreamHandler()
     handler.setFormatter(
@@ -29,6 +30,7 @@ def begin_logging():
     log.addHandler(handler)
 
     return log
+
 
 def main():
     logger = begin_logging()
@@ -42,7 +44,7 @@ def main():
     if DISCORD_GUILDS is None:
         raise SystemExit("DISCORD_GUILDS missing from environment.")
 
-    bot = commands.Bot(command_prefix='!')
+    bot = commands.Bot(command_prefix="!")
     slash = SlashCommand(
         bot, sync_commands=True
     )  # Declares slash commands through the client.
@@ -61,6 +63,7 @@ def main():
 
     # Run client and spawn http server
     bot.run(DISCORD_TOKEN)
+
 
 if __name__ == "__main__":
     main()
