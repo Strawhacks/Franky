@@ -1,7 +1,7 @@
 from __future__ import print_function, unicode_literals, division, absolute_import
 
 __metaclass__ = type
-__package_name__ = "skeleton"
+__package_name__ = "franky"
 __code_name__ = __package_name__
 __code_desc__ = """ program description to be displayed by argparse \n    ex: python {name}
     """.format(
@@ -22,15 +22,17 @@ import discord
 from discord_slash import SlashCommand
 
 ## Modules
-# try:
-#     from .classes import CustomExceptions
-# except ImportError:
-#     # If we can't import modules, probably running from VSCODE
-#     # attempt to hack in modules
-#     import importlib
-#     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-#     sys.path.append(os.path.dirname(SCRIPT_DIR))
-#     CustomExceptions = importlib.import_module(__package_name__+'.classes.CustomExceptions')
+try:
+    from .classes import RequestHandler
+    from .classes import ThreadedServer
+except ImportError:
+    # If we can't import modules, probably running from VSCODE
+    # attempt to hack in modules
+    import importlib
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(os.path.dirname(SCRIPT_DIR))
+    RequestHandler = importlib.import_module(__package_name__+'.classes.RequestHandler')
+    ThreadedServer = importlib.import_module(__package_name__+'.classes.ThreadedServer')
 
 
 def begin_logging():
@@ -63,40 +65,49 @@ def main():
     begin_logging()
     args = handle_args()
 
-    try:
-        DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-        if DISCORD_TOKEN is None:
-            raise SystemExit("DISCORD_TOKEN missing from environment.")
+    BIND = '0.0.0.0'
+    PORT = 8000
+    server = ThreadedServer.ThreadedServer((BIND, PORT), RequestHandler)
+    while True:
+        try:
+            DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+            if DISCORD_TOKEN is None:
+                raise SystemExit("DISCORD_TOKEN missing from environment.")
 
-        # Expects a comma-seperated list of guild ids
-        DISCORD_GUILDS = os.getenv("DISCORD_GUILDS")
-        if DISCORD_GUILDS is None:
-            raise SystemExit("DISCORD_GUILDS missing from environment.")
+            # Expects a comma-seperated list of guild ids
+            DISCORD_GUILDS = os.getenv("DISCORD_GUILDS")
+            if DISCORD_GUILDS is None:
+                raise SystemExit("DISCORD_GUILDS missing from environment.")
 
-        client = discord.Client(intents=discord.Intents.default())
-        slash = SlashCommand(
-            client, sync_commands=True
-        )  # Declares slash commands through the client.
+            client = discord.Client(intents=discord.Intents.default())
+            slash = SlashCommand(
+                client, sync_commands=True
+            )  # Declares slash commands through the client.
 
-        @client.event
-        async def on_ready():
-            print("Ready!")
+            @client.event
+            async def on_ready():
+                print("Ready!")
 
-        # Register commands to these servers
-        guild_ids = DISCORD_GUILDS.split(",")
+            # Register commands to these servers
+            guild_ids = DISCORD_GUILDS.split(",")
 
-        # Defines a new "context" (ctx) command called "ping."
-        @slash.slash(name="ping", guild_ids=guild_ids)
-        async def _ping(ctx):
-            await ctx.send(f"Pong! ({client.latency*1000}ms)")
+            # Defines a new "context" (ctx) command called "ping."
+            @slash.slash(name="ping", guild_ids=guild_ids)
+            async def _ping(ctx):
+                await ctx.send(f"Pong! ({client.latency*1000}ms)")
 
-        client.run(DISCORD_TOKEN)
+            # Run client and spawn http server
+            client.run(DISCORD_TOKEN)
+            try:
+                server.handle_request()
+            except KeyboardInterrupt:
+                break
 
-    except Exception as e:
-        pprint(e)
-        raise e
-    finally:
-        pass
+        except Exception as e:
+            pprint(e)
+            raise e
+        finally:
+            pass
 
 
 if __name__ == "__main__":
